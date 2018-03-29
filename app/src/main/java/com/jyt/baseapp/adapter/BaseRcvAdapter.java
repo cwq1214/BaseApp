@@ -16,7 +16,7 @@ public abstract class BaseRcvAdapter extends RecyclerView.Adapter<BaseViewHolder
 
     List dataList;
     BaseViewHolder.OnViewHolderClickListener onViewHolderClickListener;
-    BaseViewHolder.OnViewHolderLongClickListener onViewHolderLongClickListener;
+    BaseViewHolder.OnViewHolderClickListener onViewHolderLongClickListener;
 
     public List getDataList() {
         return dataList;
@@ -30,13 +30,13 @@ public abstract class BaseRcvAdapter extends RecyclerView.Adapter<BaseViewHolder
         this.onViewHolderClickListener = onViewHolderClickListener;
     }
 
-    public void setOnViewHolderLongClickListener(BaseViewHolder.OnViewHolderLongClickListener onViewHolderLongClickListener) {
+    public void setOnViewHolderLongClickListener(BaseViewHolder.OnViewHolderClickListener onViewHolderLongClickListener) {
         this.onViewHolderLongClickListener = onViewHolderLongClickListener;
     }
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        BaseViewHolder holder  = CreateViewHolder(parent,viewType);
+        BaseViewHolder holder  = createCustomViewHolder(parent,viewType);
         holder.setOnViewHolderClickListener(onViewHolderClickListener);
         holder.setOnViewHolderLongClickListener(onViewHolderLongClickListener);
         return holder;
@@ -54,5 +54,5 @@ public abstract class BaseRcvAdapter extends RecyclerView.Adapter<BaseViewHolder
         }
         return 0;
     }
-    abstract BaseViewHolder CreateViewHolder(ViewGroup parent, int viewType);
+    abstract BaseViewHolder createCustomViewHolder(ViewGroup parent, int viewType);
 }

@@ -16,7 +16,7 @@ public class BaseViewHolder<T> extends RecyclerView.ViewHolder {
     OnViewHolderClickListener onViewHolderClickListener;
 
 
-    OnViewHolderLongClickListener onViewHolderLongClickListener;
+    OnViewHolderClickListener onViewHolderLongClickListener;
 
     public BaseViewHolder(View itemView) {
         super(itemView);
@@ -35,7 +35,7 @@ public class BaseViewHolder<T> extends RecyclerView.ViewHolder {
             @Override
             public boolean onLongClick(View v) {
                 if (onViewHolderLongClickListener!=null){
-                    onViewHolderLongClickListener.onLongClick(BaseViewHolder.this);
+                    onViewHolderLongClickListener.onClick(BaseViewHolder.this);
                     return true;
                 }
                 return false;
@@ -55,7 +55,7 @@ public class BaseViewHolder<T> extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public void setOnViewHolderLongClickListener(OnViewHolderLongClickListener onViewHolderLongClickListener) {
+    public void setOnViewHolderLongClickListener(OnViewHolderClickListener onViewHolderLongClickListener) {
         this.onViewHolderLongClickListener = onViewHolderLongClickListener;
     }
 
@@ -66,7 +66,6 @@ public class BaseViewHolder<T> extends RecyclerView.ViewHolder {
     public interface OnViewHolderClickListener{
         void onClick(BaseViewHolder holder);
     }
-    public interface OnViewHolderLongClickListener{
-        void onLongClick(BaseViewHolder holder);
-    }
+
+
 }
