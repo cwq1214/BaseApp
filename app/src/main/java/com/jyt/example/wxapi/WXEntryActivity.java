@@ -44,10 +44,16 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
         weChartHelper = new WeChartHelper();
         weChartHelper.init(this, App.weiXin_AppKey);
         weChartHelper.registerToWx();
-        IWXAPI api = weChartHelper.getWxApi();
-        api.handleIntent(getIntent(),this);
+
+        weChartHelper.handleIntent(getIntent(),this);
 
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        weChartHelper.handleIntent(getIntent(),this);
 
     }
 
@@ -137,12 +143,7 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
             @Override
             public void onResponse(String response, int id) {
 
-                    WeChartHelper.WxUser user= new Gson().fromJson(response,new TypeToken<WeChartHelper.WxUser>(){}.getType());
-                    Intent intent = new Intent();
-                    intent.putExtra("data", (Parcelable) user);
-                    intent.putExtra(WeChartHelper.BROADCAST_TYPE, WeChartHelper.BROADCAST_TYPE_LOGIN);
-                    intent.setAction(WeChartHelper.ACTION_WECHART_RECEIVE);
-                    sendBroadcast(intent);
+                    weChartHelper.sendLoginResultBroadcast(WXEntryActivity.this,response);
                     finish();
             }
         });

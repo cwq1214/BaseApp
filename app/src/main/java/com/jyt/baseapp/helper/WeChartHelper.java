@@ -7,9 +7,14 @@ import android.content.IntentFilter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.jyt.baseapp.util.L;
+import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 import java.io.Serializable;
@@ -17,7 +22,23 @@ import java.io.Serializable;
 /**
  * Created by chenweiqi on 2017/12/12.
  */
+/*
+    微信 登陆 支付 帮助类
 
+    需要使用登陆或支付功能的activity
+    使用步骤：
+    1、init
+    2、registerToWx
+    3、set响应的Listener
+    4、login 或 pay
+
+    WxxxxActivity
+    1、init
+    2、registerToWx
+    3、handleIntent
+    4、sendXXXXXResultBroadcast
+
+ */
 public class WeChartHelper {
 
     public static final String ACTION_WECHART_RECEIVE = "ACTION_WECHART_RECEIVE";
@@ -37,33 +58,37 @@ public class WeChartHelper {
 
     WeReceiver weReceiver;
 
-//    public static WeChartHelper getInstance(){
-//
-//        return helper;
-//    }
 
-    public void init(Context context, String APP_ID) {
+
+    public void init( Context context,String APP_ID) {
         this.context = context;
         this.APP_ID = APP_ID;
-
-        weReceiver = new WeReceiver();
-        IntentFilter intentFilter = new IntentFilter(ACTION_WECHART_RECEIVE);
-        context.registerReceiver(weReceiver,intentFilter);
     }
 
+    //注销receiver
     public void unInit(){
         if (context!=null && weReceiver!=null)
             context.unregisterReceiver(weReceiver);
     }
 
+
+    //WXActivity 调用
     public void registerToWx(){
         this.api = WXAPIFactory.createWXAPI(context,APP_ID,true);
         api.registerApp(APP_ID);
     }
-    public IWXAPI getWxApi(){
-        return api;
+
+
+
+    public void handleIntent(Intent intent, IWXAPIEventHandler handler){
+        api.handleIntent(intent,handler);
     }
 
+
+
+    /*
+        微信登陆
+     */
     public void login(){
         SendAuth.Req req = new SendAuth.Req();
         req.scope = "snsapi_userinfo";
@@ -71,7 +96,9 @@ public class WeChartHelper {
         api.sendReq(req);
     }
 
-
+    /*
+        微信支付
+     */
     public void pay(String partnerId, String prepayId, String timeStamp, String nonceStr, String paySign){
         PayReq request = new PayReq();
         request.appId = APP_ID;
@@ -84,11 +111,60 @@ public class WeChartHelper {
         api.sendReq(request);
     }
 
+
+    /*
+        发送登陆结果广播
+
+        解析 https://api.weixin.qq.com/sns/userinfo 接口下的返回结果
+     */
+    public void sendLoginResultBroadcast(Context context,String response){
+        WeChartHelper.WxUser user= new Gson().fromJson(response,new TypeToken<WxUser>(){}.getType());
+        Intent intent = new Intent();
+        intent.putExtra("data", (Parcelable) user);
+        intent.putExtra(WeChartHelper.BROADCAST_TYPE, WeChartHelper.BROADCAST_TYPE_LOGIN);
+        intent.setAction(WeChartHelper.ACTION_WECHART_RECEIVE);
+        context.sendBroadcast(intent);
+    }
+
+    /*
+        发送支付结果广播
+
+
+        @Override
+        public void onResp(BaseResp resp) {
+            weChartHelper.sendPayResultBroadcast(this,resp);
+            finish();
+        }
+     */
+    public void sendPayResultBroadcast(Context context, BaseResp resp){
+        L.e("onPayFinish,errCode="+resp.errCode);
+        boolean payResult = false;
+        if (resp.errCode == BaseResp.ErrCode.ERR_OK){
+            payResult = true;
+        }
+        Intent intent = new Intent();
+        intent.putExtra(WeChartHelper.BROADCAST_TYPE, WeChartHelper.BROADCAST_TYPE_PAY);
+        intent.putExtra("data",payResult);
+        intent.setAction(WeChartHelper.ACTION_WECHART_RECEIVE);
+        context.sendBroadcast(intent);
+    }
+
+
+    //注册receiver
+    private void initReceiver(){
+        weReceiver = new WeReceiver();
+        IntentFilter intentFilter = new IntentFilter(ACTION_WECHART_RECEIVE);
+        context.registerReceiver(weReceiver,intentFilter);
+    }
+
     /**
      * 获取用户信息回调（微信登录）
      * @param receiveUserInfoListener
      */
     public void setReceiveUserInfoListener(ReceiveUserInfoListener receiveUserInfoListener) {
+        if (weReceiver==null){
+            initReceiver();
+        }
         this.receiveUserInfoListener = receiveUserInfoListener;
     }
 
@@ -97,6 +173,9 @@ public class WeChartHelper {
      * @param receivePayResultListener
      */
     public void setReceivePayResultListener(ReceivePayResultListener receivePayResultListener) {
+        if (weReceiver==null){
+            initReceiver();
+        }
         this.receivePayResultListener = receivePayResultListener;
     }
 
@@ -107,7 +186,6 @@ public class WeChartHelper {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            System.out.println("receive");
             int type = intent.getIntExtra(BROADCAST_TYPE,-1);
             if ( type == BROADCAST_TYPE_LOGIN){
                 if (receiveUserInfoListener!=null) {

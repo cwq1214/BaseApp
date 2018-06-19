@@ -31,8 +31,7 @@ public class WXPayEntryActivity extends AppCompatActivity implements IWXAPIEvent
         weChartHelper = new WeChartHelper();
         weChartHelper.init(this, App.weiXin_AppKey);
         weChartHelper.registerToWx();
-        IWXAPI api = weChartHelper.getWxApi();
-        api.handleIntent(getIntent(),this);
+        weChartHelper.handleIntent(getIntent(),this);
 
     }
 
@@ -43,20 +42,15 @@ public class WXPayEntryActivity extends AppCompatActivity implements IWXAPIEvent
 
     @Override
     public void onResp(BaseResp resp) {
-        if(resp.getType()== ConstantsAPI.COMMAND_PAY_BY_WX){
-            L.e("onPayFinish,errCode="+resp.errCode);
-            boolean payResult = false;
-           if (resp.errCode == BaseResp.ErrCode.ERR_OK){
-               payResult = true;
-           }else {
+       weChartHelper.sendPayResultBroadcast(this,resp);
+       finish();
 
-           }
-            Intent intent = new Intent();
-            intent.putExtra(WeChartHelper.BROADCAST_TYPE, WeChartHelper.BROADCAST_TYPE_PAY);
-            intent.putExtra("data",payResult);
-            intent.setAction(WeChartHelper.ACTION_WECHART_RECEIVE);
-            sendBroadcast(intent);
-            finish();
-        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        weChartHelper.handleIntent(getIntent(),this);
+
     }
 }
