@@ -55,6 +55,8 @@ dependencies {
     compile 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     compile 'com.upyun:upyun-android-sdk:2.0.5'
     compile 'com.linchaolong.android:imagepicker:1.5'
+    compile 'com.orhanobut:logger:2.2.0'
+
 
 //    compile 'cn.jiguang.sdk:jpush:3.0.9'  // 此处以JPush 3.0.9 版本为例。
 //    compile 'cn.jiguang.sdk:jcore:1.1.7'  // 此处以JCore 1.1.7 版本为例。

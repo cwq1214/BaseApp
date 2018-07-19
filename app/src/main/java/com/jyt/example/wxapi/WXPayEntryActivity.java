@@ -6,12 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.jyt.baseapp.App;
-import com.jyt.baseapp.helper.WeChartHelper;
-import com.jyt.baseapp.util.L;
-import com.tencent.mm.opensdk.constants.ConstantsAPI;
+import com.jyt.baseapp.common.helper.WeChartHelper;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
-import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 
 /**
