@@ -6,6 +6,7 @@ import android.os.Message;
 
 import com.orhanobut.hawk.Hawk;
 import com.orhanobut.hawk.LogInterceptor;
+import com.orhanobut.logger.Logger;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.log.LoggerInterceptor;
 
@@ -62,7 +63,7 @@ public class App  extends Application{
             @Override
             public void onLog(String message) {
                 if (isDebug()){
-                    L.e(message);
+                    Logger.d(message);
                 }
             }
         }).build();
