@@ -95,7 +95,8 @@ ext {
             flowLayout           : 'com.nex3z:flow-layout:0.1.2',
             // ------------- 图表 -------------
             mpAndroidChart       : 'com.github.PhilJay:MPAndroidChart:v3.0.0-beta1',
-
+            // ------------- 弹出框 -------------
+            alertview            : 'com.bigkoo:alertview:1.0.3'
 
     ]
 }
